@@ -1,7 +1,6 @@
 package tKube
 
 import (
-	"crypto/tls"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/stretchr/testify/require"
 	tUtils "gitlab.com/alexandre.mahdhaoui/go-lib-testing-utils"
@@ -15,7 +14,6 @@ func NewKubeConfig(t *testing.T) KubeConfig {
 	k.SetContextName("")
 	k.SetId(tUtils.Uuid())
 	k.SetT(t)
-	k.SetTlsConfig(&tls.Config{})
 
 	return k
 }
@@ -44,89 +42,51 @@ type KubeConfig struct {
 	// Getters
 	ConfigPathGetter
 	ContextNameGetter
-	Identifier
 	KubeOptGetter
+	tUtils.Identifier
 	tUtils.Tester
-	tUtils.TlsConfigGetter
 
 	// Setters
 	ConfigPathSetter
 	ContextNameSetter
 	IdSetter
-	TestSetter
-	TlsConfigSetter
+	tUtils.TestSetter
 
 	// Fields
 	contextName string
 	configPath  string
 	id          string
 	t           *testing.T
-	tlsConfig   *tls.Config
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------- Interfaces ------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 
-type ConfigPathGetter interface {
-	ConfigPath() string
-}
-
-type ConfigPathSetter interface {
-	SetConfigPath(string)
-}
-
-type ContextNameGetter interface {
-	ContextName() string
-}
-
-type ContextNameSetter interface {
-	SetContextName(string)
-}
-
-type Identifier interface {
-	Id() string
-}
-
-type IdSetter interface {
-	SetId(string)
-}
-
 type KubeConfigBuilder interface {
-	Identifier
 	KubeOptGetter
+	tUtils.Identifier
 }
 
 type KubeOptBuilder interface {
-	Identifier
 	ConfigPathGetter
 	ContextNameGetter
-}
-
-type KubeOptGetter interface {
-	KubeOpt() *k8s.KubectlOptions
+	tUtils.Identifier
 }
 
 type KubeTester interface {
-	Identifier
-	tUtils.Tester
 	KubeOptGetter
-}
-
-type TestSetter interface {
-	SetT(t *testing.T)
-}
-
-type TlsConfigSetter interface {
-	SetTlsConfig(*tls.Config)
-}
-
-type TlsKubeTester interface {
-	Identifier
+	tUtils.Identifier
 	tUtils.Tester
-	KubeOptGetter
-	tUtils.TlsConfigGetter
 }
+
+type ConfigPathGetter interface{ ConfigPath() string }
+type ContextNameGetter interface{ ContextName() string }
+type KubeOptGetter interface{ KubeOpt() *k8s.KubectlOptions }
+
+type ConfigPathSetter interface{ SetConfigPath(string) }
+type ContextNameSetter interface{ SetContextName(string) }
+type IdSetter interface{ SetId(string) }
 
 //----------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------ Getters -------------------------------------------------------
@@ -153,10 +113,6 @@ func (k *KubeConfig) T() *testing.T {
 	return k.t
 }
 
-func (k *KubeConfig) TlsConfig() *tls.Config {
-	return k.tlsConfig
-}
-
 //----------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------ Setters -------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -173,8 +129,4 @@ func (k *KubeConfig) SetContextName(s string) {
 
 func (k *KubeConfig) SetT(t *testing.T) {
 	k.t = t
-}
-
-func (k *KubeConfig) SetTlsConfig(t *tls.Config) {
-	k.tlsConfig = t
 }

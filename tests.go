@@ -21,11 +21,11 @@ func TestPodAntiAffinity(k KubeTester) {
 
 // TestServiceEndpoint awaits service's availability, gets the Service Resource & query endpoint with
 // tUtils.HttpGetWithRetry() expecting 200
-func TestServiceEndpoint(k TlsKubeTester) {
+func TestServiceEndpoint(k KubeTester, tls tUtils.TlsTester) {
 	AwaitResource(k, "service", 5, 5*time.Second)
 
 	service := k8s.GetService(k.T(), k.KubeOpt(), k.Id())
 	endpoint := "http://" + k8s.GetServiceEndpoint(k.T(), k.KubeOpt(), service, 80)
 
-	tUtils.HttpGetWithRetry(k, endpoint, 200, 5, 5*time.Second)
+	tUtils.HttpGetWithRetry(tls, endpoint, 200, 5, 5*time.Second)
 }
