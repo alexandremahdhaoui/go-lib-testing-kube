@@ -46,7 +46,7 @@ type KubeConfig struct {
 	ContextNameGetter
 	Identifier
 	KubeOptGetter
-	Tester
+	tUtils.Tester
 	tUtils.TlsConfigGetter
 
 	// Setters
@@ -109,12 +109,8 @@ type KubeOptGetter interface {
 
 type KubeTester interface {
 	Identifier
-	Tester
+	tUtils.Tester
 	KubeOptGetter
-}
-
-type Tester interface {
-	T() *testing.T
 }
 
 type TestSetter interface {
@@ -127,7 +123,7 @@ type TlsConfigSetter interface {
 
 type TlsKubeTester interface {
 	Identifier
-	Tester
+	tUtils.Tester
 	KubeOptGetter
 	tUtils.TlsConfigGetter
 }
