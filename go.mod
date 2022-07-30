@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/gruntwork-io/terratest v0.40.18
 	github.com/stretchr/testify v1.8.0
-	gitlab.com/alexandre.mahdhaoui/go-lib-testing-utils v0.0.0-20220729230143-28e4306aff89
+	gitlab.com/alexandre.mahdhaoui/go-lib-testing-utils v0.1.0
 )
 
 require (
