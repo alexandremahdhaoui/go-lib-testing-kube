@@ -7,19 +7,14 @@ import (
 	"testing"
 )
 
-func NewKubeConfig(t *testing.T) KubeConfig {
-	k := KubeConfig{}
-
-	k.SetConfigPath("")
-	k.SetContextName("")
-	k.SetId(tUtils.Uuid())
-	k.SetT(t)
-
-	return k
+type KubeTester interface {
+	KubeOpt() *k8s.KubectlOptions
+	tUtils.Identifier
+	tUtils.Tester
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-//--------------------------------------------------- Functions --------------------------------------------------------
+//------------------------------------------------ Functions -----------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 
 // Kubectl runs a kubectl command specified in `args` & Returns command's output
@@ -29,104 +24,101 @@ func Kubectl(k KubeTester, args ...string) string {
 	return output
 }
 
-func NewKubeOpt(kb KubeOptBuilder) *k8s.KubectlOptions {
+//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------- KubeOptionsBuilder ---------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+type KubeOptionsBuilder interface {
+	ConfigPath() string
+	ContextName() string
+	Id() string
+}
+
+func KubeOptions(kb KubeOptionsBuilder) *k8s.KubectlOptions {
 	return k8s.NewKubectlOptions(kb.ContextName(), kb.ConfigPath(), kb.Id())
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------ Struct --------------------------------------------------------
+//----------------------------------------------- KubeConfigBuilder ----------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 
-type KubeConfig struct {
+type KubeConfigBuilder interface {
+	Build() KubeConfig
+	SetConfigPath(string) KubeConfigBuilder
+	SetContextName(string) KubeConfigBuilder
+	SetKubeOpt() KubeConfigBuilder
+	SetId(string) KubeConfigBuilder
+	SetT(t *testing.T) KubeConfigBuilder
+}
 
-	// Getters
-	ConfigPathGetter
-	ContextNameGetter
-	KubeOptGetter
-	tUtils.Identifier
-	tUtils.Tester
+type kubeConfigBuilder struct {
+	KubeConfigBuilder
+	kubeConfig kubeConfig
+}
 
-	// Setters
-	ConfigPathSetter
-	ContextNameSetter
-	IdSetter
-	tUtils.TestSetter
+func NewKubeConfigBuilder() KubeConfigBuilder {
+	return &kubeConfigBuilder{kubeConfig: kubeConfig{}}
+}
 
-	// Fields
+func (b *kubeConfigBuilder) SetConfigPath(s string) KubeConfigBuilder {
+	b.kubeConfig.configPath = s
+	return b
+}
+
+func (b *kubeConfigBuilder) SetContextName(s string) KubeConfigBuilder {
+	b.kubeConfig.contextName = s
+	return b
+}
+
+func (b *kubeConfigBuilder) SetT(t *testing.T) KubeConfigBuilder {
+	b.kubeConfig.t = t
+	return b
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------- KubeConfig ------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+type KubeConfig interface {
+	ConfigPath() string
+	ContextName() string
+	KubeOpt() *k8s.KubectlOptions
+	Id() string
+	T() *testing.T
+}
+
+type kubeConfig struct {
+	KubeConfig
 	contextName string
 	configPath  string
 	id          string
 	t           *testing.T
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-//---------------------------------------------------- Interfaces ------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-
-type KubeConfigBuilder interface {
-	KubeOptGetter
-	tUtils.Identifier
+func NewKubeConfig(t *testing.T) KubeConfig {
+	return NewKubeConfigBuilder().
+		SetConfigPath("").
+		SetContextName("").
+		SetId(tUtils.Uuid()).
+		SetT(t).
+		Build()
 }
 
-type KubeOptBuilder interface {
-	ConfigPathGetter
-	ContextNameGetter
-	tUtils.Identifier
-}
-
-type KubeTester interface {
-	KubeOptGetter
-	tUtils.Identifier
-	tUtils.Tester
-}
-
-type ConfigPathGetter interface{ ConfigPath() string }
-type ContextNameGetter interface{ ContextName() string }
-type KubeOptGetter interface{ KubeOpt() *k8s.KubectlOptions }
-
-type ConfigPathSetter interface{ SetConfigPath(string) }
-type ContextNameSetter interface{ SetContextName(string) }
-type IdSetter interface{ SetId(string) }
-
-//----------------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------ Getters -------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-
-// func (k *KubeConfig) Get() {}
-
-func (k *KubeConfig) ConfigPath() string {
+func (k *kubeConfig) ConfigPath() string {
 	return k.configPath
 }
-func (k *KubeConfig) ContextName() string {
+func (k *kubeConfig) ContextName() string {
 	return k.contextName
 }
 
-func (k *KubeConfig) KubeOpt() *k8s.KubectlOptions {
-	return NewKubeOpt(k)
+func (k *kubeConfig) KubeOptions() *k8s.KubectlOptions {
+	return KubeOptions(k)
 }
 
-func (k *KubeConfig) Id() string {
+func (k *kubeConfig) Id() string {
 	return k.id
 }
 
-func (k *KubeConfig) T() *testing.T {
+func (k *kubeConfig) T() *testing.T {
 	return k.t
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------ Setters -------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-
-// func (k *KubeConfig) Set() {}
-
-func (k *KubeConfig) SetConfigPath(s string) {
-	k.configPath = s
-}
-
-func (k *KubeConfig) SetContextName(s string) {
-	k.contextName = s
-}
-
-func (k *KubeConfig) SetT(t *testing.T) {
-	k.t = t
 }
