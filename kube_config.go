@@ -56,9 +56,7 @@ type kubeConfigBuilder struct {
 	kubeConfig kubeConfig
 }
 
-func NewKubeConfigBuilder() KubeConfigBuilder {
-	return &kubeConfigBuilder{kubeConfig: kubeConfig{}}
-}
+func NewKubeConfigBuilder() KubeConfigBuilder { return &kubeConfigBuilder{kubeConfig: kubeConfig{}} }
 
 func (b *kubeConfigBuilder) SetConfigPath(s string) KubeConfigBuilder {
 	b.kubeConfig.configPath = s
@@ -83,8 +81,8 @@ type KubeConfig interface {
 	ConfigPath() string
 	ContextName() string
 	KubeOpt() *k8s.KubectlOptions
-	Id() string
-	T() *testing.T
+	tUtils.Identifier
+	tUtils.Tester
 }
 
 type kubeConfig struct {
@@ -104,21 +102,8 @@ func NewKubeConfig(t *testing.T) KubeConfig {
 		Build()
 }
 
-func (k *kubeConfig) ConfigPath() string {
-	return k.configPath
-}
-func (k *kubeConfig) ContextName() string {
-	return k.contextName
-}
-
-func (k *kubeConfig) KubeOptions() *k8s.KubectlOptions {
-	return KubeOptions(k)
-}
-
-func (k *kubeConfig) Id() string {
-	return k.id
-}
-
-func (k *kubeConfig) T() *testing.T {
-	return k.t
-}
+func (k *kubeConfig) ConfigPath() string               { return k.configPath }
+func (k *kubeConfig) ContextName() string              { return k.contextName }
+func (k *kubeConfig) KubeOptions() *k8s.KubectlOptions { return KubeOptions(k) }
+func (k *kubeConfig) Id() string                       { return k.id }
+func (k *kubeConfig) T() *testing.T                    { return k.t }
